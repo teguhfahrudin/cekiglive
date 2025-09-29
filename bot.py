@@ -57,7 +57,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # --- MAIN ---
 def main():
-    token = os.getenv("TELEGRAM_BOT_TOKEN")  # diset di Railway sebagai ENV
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
     app = Application.builder().token(token).build()
 
     app.add_handler(CommandHandler("start", start))
