@@ -1,17 +1,10 @@
-# Railway app
-# Bot TG
-
-
 import os
 import time
 import requests
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-from telegram.ext import Updater
+from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 
-#TELEGRAM_BOT_TOKEN  = "8011386462:AAFNEk4f9TS4174KevnCDmr7Ne_wPWWIYUk"
-
-# --- CEK INSTAGRAM ---
+# ---- CEK INSTAGRAM ----
 def cek_instagram(username: str) -> str:
     url = f"https://www.instagram.com/{username}/"
     headers = {
@@ -22,7 +15,6 @@ def cek_instagram(username: str) -> str:
     try:
         r = requests.get(url, headers=headers, timeout=10)
         html = r.text
-
         if "Sorry, this page isn't available." in html or "Page Not Found" in html:
             return f"{username}: ❌ Tidak ditemukan"
         elif 'property="og:type" content="profile"' in html or "profilePage_" in html:
@@ -32,9 +24,9 @@ def cek_instagram(username: str) -> str:
     except Exception as e:
         return f"{username}: ⚠️ Error ({e})"
 
-# --- TELEGRAM BOT HANDLER ---
+# ---- HANDLERS ----
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Kirim list username IG (max 10 per pesan), dipisahkan spasi atau enter.")
+    await update.message.reply_text("Kirim list username IG (max 10 per pesan).")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     usernames = update.message.text.split()
@@ -42,33 +34,25 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Maksimal 10 username sekali cek.")
         return
 
-    results = []
     for i, u in enumerate(usernames, start=1):
         hasil = cek_instagram(u.strip())
-        results.append(hasil)
         await update.message.reply_text(hasil)
 
-        # jeda kecil antar akun
-        time.sleep(2)
-
-        # jeda ekstra setiap 5 akun
+        time.sleep(2)  # jeda kecil antar akun
         if i % 5 == 0:
-            await update.message.reply_text("⏳ Jeda 10 detik untuk menghindari limit...")
+            await update.message.reply_text("⏳ Jeda 10 detik...")
             time.sleep(10)
 
-# --- MAIN ---
+# ---- MAIN ----
 def main():
     token = os.getenv("TELEGRAM_BOT_TOKEN")
-    updater = Updater(token, use_context=True)
-    dp = updater.dispatcher
+    app = Application.builder().token(token).build()
 
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     print("Bot berjalan...")
-    updater.start_polling()
-    updater.idle()
-
+    app.run_polling()
 
 if __name__ == "__main__":
     main()
