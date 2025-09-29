@@ -14,14 +14,14 @@ def cek_instagram(username: str) -> str:
     try:
         r = requests.get(url, headers=headers, timeout=10)
         html = r.text
+
         if "Sorry, this page isn't available." in html or "Page Not Found" in html:
             return f"{username}: ❌ Tidak ditemukan"
-        elif 'property="og:type" content="profile"' in html or "profilePage_" in html:
-            return f"{username}: ✅ Ada (profil aktif)"
         else:
-            return f"{username}: ❓ Ambigu / butuh login"
+            return f"{username}: ✅ Ada (profil terdeteksi / redirect login)"
     except Exception as e:
         return f"{username}: ⚠️ Error ({e})"
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Kirim list username IG (max 10 per pesan).")
