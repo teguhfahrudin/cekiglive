@@ -4,7 +4,6 @@ import requests
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 
-# ---- CEK INSTAGRAM ----
 def cek_instagram(username: str) -> str:
     url = f"https://www.instagram.com/{username}/"
     headers = {
@@ -24,7 +23,6 @@ def cek_instagram(username: str) -> str:
     except Exception as e:
         return f"{username}: ⚠️ Error ({e})"
 
-# ---- HANDLERS ----
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Kirim list username IG (max 10 per pesan).")
 
@@ -38,21 +36,20 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         hasil = cek_instagram(u.strip())
         await update.message.reply_text(hasil)
 
-        time.sleep(2)  # jeda kecil antar akun
+        time.sleep(2)  # jeda antar akun
         if i % 5 == 0:
             await update.message.reply_text("⏳ Jeda 10 detik...")
             time.sleep(10)
 
-# ---- MAIN ----
 def main():
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     app = Application.builder().token(token).build()
-
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-
     print("Bot berjalan...")
     app.run_polling()
 
 if __name__ == "__main__":
+    import telegram
+    print("python-telegram-bot version:", telegram.__version__)  # debug
     main()
