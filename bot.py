@@ -7,6 +7,7 @@ import time
 import requests
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import Updater
 
 #TELEGRAM_BOT_TOKEN  = "8011386462:AAFNEk4f9TS4174KevnCDmr7Ne_wPWWIYUk"
 
@@ -58,13 +59,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- MAIN ---
 def main():
     token = os.getenv("TELEGRAM_BOT_TOKEN")
-    app = Application.builder().token(token).build()
+    updater = Updater(token, use_context=True)
+    dp = updater.dispatcher
 
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     print("Bot berjalan...")
-    app.run_polling()
+    updater.start_polling()
+    updater.idle()
+
 
 if __name__ == "__main__":
     main()
